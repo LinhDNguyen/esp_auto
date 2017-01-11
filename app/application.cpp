@@ -1,7 +1,6 @@
 #include <user_config.h>
 #include <SmingCore/SmingCore.h>
-
-#define LED_PIN 2 // GPIO2
+#include <ControlCommand.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,17 +58,24 @@ user_rf_pre_init(void)
 }
 #endif
 
-Timer procTimer;
-bool state = true;
+ControlCommand exampleCommand;
 
-void blink()
+void processApplicationCommands(String commandLine, CommandOutput* commandOutput)
 {
-	digitalWrite(LED_PIN, state);
-	state = !state;
+	commandOutput->printf("This command is handle by the application\r\n");
 }
 
 void init()
 {
-	pinMode(LED_PIN, OUTPUT);
-	procTimer.initializeMs(1000, blink).start();
+	Serial.begin(SERIAL_BAUD_RATE); // 115200 by default
+
+	// commandHandler.registerSystemCommands();
+	Serial.systemDebugOutput(false); // Enable debug output to serial
+	Serial.commandProcessing(true);
+	WifiAccessPoint.enable(false);
+	WifiStation.enable(false);
+
+
+	exampleCommand.initCommand();
+	commandHandler.registerCommand(CommandDelegate("example","Example Command from Class","Application",processApplicationCommands));
 }
